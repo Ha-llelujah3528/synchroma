@@ -86,7 +86,12 @@ export function initMenus(cb) {
     const stats = $("#result-stats");
     let title = "RESULT";
     let cls = "neutral";
-    if (result.outcome === "win") { title = "YOU WIN!"; cls = "win"; }
+    if (mode === "vs") {
+      // シンクロのトーン: 勝敗ではなく「気持ちが届いたか」で語る
+      if (result.outcome === "win") { title = "通じ合えた"; cls = "win"; }
+      else if (result.outcome === "lose") { title = "今回は、届かなかった"; cls = "lose"; }
+      else { title = "すれ違い"; cls = "neutral"; }
+    } else if (result.outcome === "win") { title = "YOU WIN!"; cls = "win"; }
     else if (result.outcome === "lose") { title = "YOU LOSE"; cls = "lose"; }
     else if (result.outcome === "clear") { title = "CLEAR!"; cls = "win"; }
     else if (result.outcome === "over") { title = "GAME OVER"; cls = "lose"; }
@@ -98,7 +103,8 @@ export function initMenus(cb) {
       rows.push(["TIME", result.outcome === "clear" ? fmtTime(result.frames) : "—"]);
       rows.push(["SCORE", String(result.score)]);
     } else if (mode === "vs") {
-      rows.push(["SCORE", String(result.score)]);
+      rows.push(["YOU ♥", `${result.emotion} / 100`]);
+      rows.push(["CPU ♥", `${result.oppEmotion} / 100`]);
       rows.push(["TIME", fmtTime(result.frames)]);
     } else {
       rows.push(["SCORE", String(result.score)]);

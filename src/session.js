@@ -7,6 +7,13 @@ import { Renderer } from "./render/renderer.js";
 import { CpuPlayer } from "./ai/cpuPlayer.js";
 import { queueGarbage } from "./core/garbage.js";
 import { Ev } from "./core/types.js";
+import {
+  EMOTION,
+  TIME_LIMIT_FRAMES,
+  emotionGainFromEvents,
+  resolveSync,
+} from "./match/emotion.js";
+import { drawEmotionGauge, drawSyncTimer } from "./match/syncHud.js";
 
 const seed32 = () => (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
 const COUNTDOWN = 180; // 3s "READY" countdown before play begins
@@ -94,10 +101,13 @@ export class SingleSession {
 }
 
 // Versus CPU with garbage exchange. P1 = human, P2 = CPU.
+// Win/lose is decided by the 感情ゲージ (emotion layer, see match/emotion.js),
+// not by HP — the tone is "気持ちが届くかどうか" rather than "倒す".
 export class VsSession {
-  constructor({ canvas, audio, input, cpuReaction = 7 }) {
+  constructor({ canvas, audio, input, cpuReaction = 7, onResolve = null }) {
     this.audio = audio;
     this.input = input;
+    this.onResolve = onResolve; // story-branch hook, called once on decision
     const seed = seed32();
     this.p1 = new Engine(seed, { startRows: 6 });
     this.p2 = new Engine((seed ^ 0x9e3779b9) >>> 0, { startRows: 6 });
@@ -115,6 +125,10 @@ export class VsSession {
     this.countdown = COUNTDOWN;
     this.goFlash = 0;
     this.overHold = 0;
+    // emotion layer state (lives outside the deterministic engines)
+    this.p1Emotion = 0;
+    this.p2Emotion = 0;
+    this.timeLeft = TIME_LIMIT_FRAMES;
     this._onResize = () => this._layout();
     window.addEventListener("resize", this._onResize);
   }
@@ -161,17 +175,39 @@ export class VsSession {
     // route outgoing garbage to the opponent
     this._route(this.p1, this.p2);
     this._route(this.p2, this.p1);
+    // 感情ゲージ: 連鎖を後段ほど大きく積む(満たした側が勝つ勝敗レイヤー)
+    this.p1Emotion = Math.min(EMOTION.GOAL, this.p1Emotion + emotionGainFromEvents(this.p1.events));
+    this.p2Emotion = Math.min(EMOTION.GOAL, this.p2Emotion + emotionGainFromEvents(this.p2.events));
     this.rendP1.consumeEvents(this.p1.events);
     this.rendP2.consumeEvents(this.p2.events);
     this.audio.consumeEvents(this.p1.events); // only the human side drives SFX
     this.frames++;
+    if (this.timeLeft > 0) this.timeLeft--;
 
-    if (this.p1.gameOver || this.p2.gameOver) {
-      this.finished = true;
-      this.overHold = OVER_HOLD;
-      const win = this.p2.gameOver && !this.p1.gameOver;
-      this.result = { outcome: win ? "win" : "lose", score: this.p1.score, frames: this.frames };
-    }
+    // 決着判定(毎フレーム / トップアウト → ゲージ100 → 時間切れ の順)
+    const decision = resolveSync({
+      p1Over: this.p1.gameOver,
+      p2Over: this.p2.gameOver,
+      e1: this.p1Emotion,
+      e2: this.p2Emotion,
+      timeUp: this.timeLeft <= 0,
+    });
+    if (decision) this._finish(decision);
+  }
+
+  _finish(decision) {
+    this.finished = true;
+    this.overHold = OVER_HOLD;
+    this.result = {
+      outcome: decision.outcome, // 'win' | 'lose' | 'draw' (P1 視点)
+      winner: decision.winner, // 'p1' | 'p2' | null — ストーリー分岐フック
+      reason: decision.reason, // 'topout' | 'emotion' | 'time'
+      emotion: Math.round(this.p1Emotion),
+      oppEmotion: Math.round(this.p2Emotion),
+      score: this.p1.score,
+      frames: this.frames,
+    };
+    if (this.onResolve) this.onResolve(this.result);
   }
 
   _route(from, to) {
@@ -183,6 +219,10 @@ export class VsSession {
   render() {
     this.rendP1.draw();
     this.rendP2.draw();
+    // emotion layer overlay (drawn on top of both boards)
+    drawEmotionGauge(this.rendP1, this.p1Emotion, "left", "YOU");
+    drawEmotionGauge(this.rendP2, this.p2Emotion, "right", "CPU");
+    drawSyncTimer(this.rendP1, this.timeLeft);
   }
 
   dispose() {
