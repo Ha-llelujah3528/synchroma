@@ -180,6 +180,7 @@ export class VsSession {
       if (this.overHold > 0) this.overHold--;
       return;
     }
+    const skillPressed = this.input.takeSkill(); // 手動スキル(P1)
     const c2 = this.cpu.frame();
     this.p1.tick(c1);
     this.p2.tick(c2);
@@ -192,8 +193,12 @@ export class VsSession {
     // 打開スキル(ハイブリッド: 連鎖等 + 少量の自然回復)
     this.p1Skill = Math.min(SKILL.MAX, this.p1Skill + skillGainFromEvents(this.p1.events) + SKILL.IDLE_PER_FRAME);
     this.p2Skill = Math.min(SKILL.MAX, this.p2Skill + skillGainFromEvents(this.p2.events) + SKILL.IDLE_PER_FRAME);
-    // 満タンで発動(不発なら満タンのまま保持し、条件が整い次第その場で発動)
-    if (this.p1Skill >= SKILL.MAX && activateSkill(this.p1Char, { self: this.p1, opp: this.p2 })) this.p1Skill = 0;
+    // プレイヤー(P1)は手動発動 ── 満タン時に SKILL を押した時だけ撃つ。
+    // 不発(対象なし)ならチャージは満タンのまま保持され、押し直せる。
+    if (skillPressed && this.p1Skill >= SKILL.MAX) {
+      if (activateSkill(this.p1Char, { self: this.p1, opp: this.p2 })) this.p1Skill = 0;
+    }
+    // CPU(P2)は満タンで自動発動。
     if (this.p2Skill >= SKILL.MAX && activateSkill(this.p2Char, { self: this.p2, opp: this.p1 })) this.p2Skill = 0;
 
     this.rendP1.consumeEvents(this.p1.events);

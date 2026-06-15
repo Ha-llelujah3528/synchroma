@@ -11,8 +11,9 @@ export const ACTION_LABELS = {
   right: "右 / RIGHT",
   swap: "入替 / SWAP",
   raise: "せり上げ / RAISE",
+  skill: "スキル / SKILL",
 };
-export const ACTION_ORDER = ["up", "down", "left", "right", "swap", "raise"];
+export const ACTION_ORDER = ["up", "down", "left", "right", "swap", "raise", "skill"];
 
 const DEFAULT_KEYS = {
   left: ["ArrowLeft", "KeyA"],
@@ -21,6 +22,7 @@ const DEFAULT_KEYS = {
   down: ["ArrowDown", "KeyS"],
   swap: ["Space", "KeyZ", "KeyJ"],
   raise: ["ShiftLeft", "ShiftRight", "KeyK"],
+  skill: ["KeyX", "KeyL"],
 };
 
 // Every on-screen button is freely placeable (incl. each D-pad arrow). Default
@@ -30,8 +32,9 @@ const RIGHT_DEFAULTS = {
   down: { xPct: 16, yPct: 88 },
   left: { xPct: 7, yPct: 77 },
   right: { xPct: 25, yPct: 77 },
-  raise: { xPct: 86, yPct: 64 },
+  raise: { xPct: 86, yPct: 62 },
   swap: { xPct: 86, yPct: 84 },
+  skill: { xPct: 70, yPct: 73 },
 };
 
 function clone(o) {

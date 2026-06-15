@@ -70,7 +70,7 @@ export function drawEmotionGauge(rend, value, side, label) {
 }
 
 // 打開スキルのチャージバー。感情ゲージの内側に寄り添う細い縦バー(下から満ちる)。
-// 満タンで点滅し「打開できる」ことを示す(発動は自動)。色は心の青系でゲージ(桃)と
+// 満タンで点滅し「SKILL で発動できる」ことを示す。色は心の青系でゲージ(桃)と
 // 役割を分ける。label はスキル名(満タン時に短く表示)。
 export function drawSkillBar(rend, value, max, side, label) {
   const ctx = rend.ctx;

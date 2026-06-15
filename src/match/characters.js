@@ -8,22 +8,23 @@
 // 不発(対象なし)の時 false を返す。false の間チャージは満タンのまま保持され、
 // 条件が整い次第その場で発動する(例: 貫くお邪魔がまだ盤面に無い)。
 
-import { GRID_W, GARBAGE_FLASH } from "../core/constants.js";
+import { GRID_W } from "../core/constants.js";
 import { GState } from "../core/types.js";
 import { queueGarbage } from "../core/garbage.js";
 
 // 透の原型「貫き」── 自盤面の一番下のお邪魔(ためらいの壁)を1スラブだけ貫いて
-// 通常パネルへ変換する。core 本来のトリガー(FLASHING + 大 strength)を再利用する
-// ので、見た目・挙動は自然な消し返しと同じ。全消しはしない＝打開のきっかけだけ
-// 作り、そこから連鎖で点にするのは自分の腕(核§1「便利すぎ」を避ける)。
+// 消す。壁が消えると上に積もったパネルが落ちて掘り起こされる ── 埋もれを打開する
+// ための"消し"。全消しはしない(下の1スラブだけ)＝1チャージぶんの救済。発動して
+// 連鎖に繋ぐタイミングは自分で計る(核§1「便利すぎ／待たせる」を避ける)。
 function pierce(ctx) {
-  const slabs = ctx.self.board.garbages.filter((g) => g.state === GState.IDLE);
-  if (slabs.length === 0) return false;
-  slabs.sort((a, b) => b.y + b.h - (a.y + a.h)); // 一番下のスラブ
-  const target = slabs[0];
-  target.state = GState.FLASHING;
-  target.timer = GARBAGE_FLASH;
-  target.strength = 99; // スラブ全段を変換(core 側で g.h に丸められる)
+  const garbages = ctx.self.board.garbages;
+  let target = null;
+  for (const g of garbages) {
+    if (g.state !== GState.IDLE) continue; // 落下中・変換中のものは対象外
+    if (!target || g.y + g.h > target.y + target.h) target = g; // 一番下のスラブ
+  }
+  if (!target) return false;
+  garbages.splice(garbages.indexOf(target), 1); // 壁ごと消す → 上が落ちる
   return true;
 }
 

@@ -22,6 +22,7 @@ export class InputManager {
       down: { held: false, timer: 0 },
     };
     this.swapQueued = false;
+    this.skillQueued = false; // 手動スキル発動(match層が takeSkill で受け取る)
     this.raiseHeld = false;
     this.lastRaise = false;
     this.onFirstInput = null;
@@ -53,9 +54,19 @@ export class InputManager {
       }
     } else if (act === "swap") {
       this.swapQueued = true;
+    } else if (act === "skill") {
+      this.skillQueued = true;
     } else if (act === "raise") {
       this.raiseHeld = true;
     }
+  }
+
+  // Consume a manual skill press (one-shot). Skill is a match-layer action, not
+  // an engine command, so it is read separately from drainFrameCommands.
+  takeSkill() {
+    const q = this.skillQueued;
+    this.skillQueued = false;
+    return q;
   }
 
   release(act) {

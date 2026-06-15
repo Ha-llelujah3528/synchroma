@@ -9,10 +9,10 @@ export function initMenus(cb) {
   root.id = "menus";
   root.innerHTML = `
     <div id="title-screen" class="menu-screen hidden">
-      <div class="title-logo">PANEL<span>ASSAULT</span></div>
-      <div class="title-sub">MECHA × NEON PUZZLE BATTLE</div>
+      <div class="title-logo">SYNCHRO<span>MA</span></div>
+      <div class="title-sub">この想い、シンクロするまで（仮）</div>
       <button id="title-start" class="big-btn">GAME START</button>
-      <div class="title-hint">パネルでポン プロトタイプ</div>
+      <div class="title-hint">心を通わせる連鎖パズル ── プロトタイプ</div>
     </div>
 
     <div id="mode-select" class="menu-screen hidden">
@@ -25,7 +25,7 @@ export function initMenus(cb) {
           <b>TIME ATTACK</b><span>目標スコアまでの最速タイム</span>
         </button>
         <button class="mode-card" data-mode="vs">
-          <b>VS CPU</b><span>CPUとおじゃま送り合い対戦</span>
+          <b>シンクロ対戦</b><span>想いをぶつけ合う VS CPU</span>
         </button>
       </div>
       <button id="mode-back" class="menu-btn-sm">← タイトルへ</button>
