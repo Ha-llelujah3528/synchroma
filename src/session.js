@@ -10,10 +10,15 @@ import { Ev } from "./core/types.js";
 import {
   EMOTION,
   TIME_LIMIT_FRAMES,
+  SKILL,
+  TOPOUT,
   emotionGainFromEvents,
+  skillGainFromEvents,
   resolveSync,
 } from "./match/emotion.js";
-import { drawEmotionGauge, drawSyncTimer } from "./match/syncHud.js";
+import { CHARACTERS, activateSkill } from "./match/characters.js";
+import { purgeTop } from "./match/topout.js";
+import { drawEmotionGauge, drawSkillBar, drawSyncTimer } from "./match/syncHud.js";
 
 const seed32 = () => (Date.now() ^ (Math.random() * 0xffffffff)) >>> 0;
 const COUNTDOWN = 180; // 3s "READY" countdown before play begins
@@ -126,8 +131,14 @@ export class VsSession {
     this.goFlash = 0;
     this.overHold = 0;
     // emotion layer state (lives outside the deterministic engines)
+    this.p1Char = CHARACTERS.toru; // human
+    this.p2Char = CHARACTERS.rio; // CPU
     this.p1Emotion = 0;
     this.p2Emotion = 0;
+    this.p1Skill = 0; // 打開スキルのチャージ
+    this.p2Skill = 0;
+    this.p1TopLock = 0; // トップアウト連続ペナルティ防止
+    this.p2TopLock = 0;
     this.timeLeft = TIME_LIMIT_FRAMES;
     this._onResize = () => this._layout();
     window.addEventListener("resize", this._onResize);
@@ -178,21 +189,44 @@ export class VsSession {
     // 感情ゲージ: 連鎖を後段ほど大きく積む(満たした側が勝つ勝敗レイヤー)
     this.p1Emotion = Math.min(EMOTION.GOAL, this.p1Emotion + emotionGainFromEvents(this.p1.events));
     this.p2Emotion = Math.min(EMOTION.GOAL, this.p2Emotion + emotionGainFromEvents(this.p2.events));
+    // 打開スキル(ハイブリッド: 連鎖等 + 少量の自然回復)
+    this.p1Skill = Math.min(SKILL.MAX, this.p1Skill + skillGainFromEvents(this.p1.events) + SKILL.IDLE_PER_FRAME);
+    this.p2Skill = Math.min(SKILL.MAX, this.p2Skill + skillGainFromEvents(this.p2.events) + SKILL.IDLE_PER_FRAME);
+    // 満タンで発動(不発なら満タンのまま保持し、条件が整い次第その場で発動)
+    if (this.p1Skill >= SKILL.MAX && activateSkill(this.p1Char, { self: this.p1, opp: this.p2 })) this.p1Skill = 0;
+    if (this.p2Skill >= SKILL.MAX && activateSkill(this.p2Char, { self: this.p2, opp: this.p1 })) this.p2Skill = 0;
+
     this.rendP1.consumeEvents(this.p1.events);
     this.rendP2.consumeEvents(this.p2.events);
     this.audio.consumeEvents(this.p1.events); // only the human side drives SFX
     this.frames++;
     if (this.timeLeft > 0) this.timeLeft--;
 
-    // 決着判定(毎フレーム / トップアウト → ゲージ100 → 時間切れ の順)
+    // トップアウトは即負けにしない: 相手ゲージへ加算 + 上段を崩して立て直す
+    if (this.p1.gameOver && this.p1TopLock <= 0) this._handleTopout("p1");
+    if (this.p2.gameOver && this.p2TopLock <= 0) this._handleTopout("p2");
+    if (this.p1TopLock > 0) this.p1TopLock--;
+    if (this.p2TopLock > 0) this.p2TopLock--;
+
+    // 決着判定(毎フレーム / ゲージ100 → 時間切れ の順)
     const decision = resolveSync({
-      p1Over: this.p1.gameOver,
-      p2Over: this.p2.gameOver,
       e1: this.p1Emotion,
       e2: this.p2Emotion,
       timeUp: this.timeLeft <= 0,
     });
     if (decision) this._finish(decision);
+  }
+
+  _handleTopout(side) {
+    if (side === "p1") {
+      this.p2Emotion = Math.min(EMOTION.GOAL, this.p2Emotion + TOPOUT.OPPONENT_EMOTION_BONUS);
+      purgeTop(this.p1);
+      this.p1TopLock = TOPOUT.LOCK_FRAMES;
+    } else {
+      this.p1Emotion = Math.min(EMOTION.GOAL, this.p1Emotion + TOPOUT.OPPONENT_EMOTION_BONUS);
+      purgeTop(this.p2);
+      this.p2TopLock = TOPOUT.LOCK_FRAMES;
+    }
   }
 
   _finish(decision) {
@@ -220,8 +254,10 @@ export class VsSession {
     this.rendP1.draw();
     this.rendP2.draw();
     // emotion layer overlay (drawn on top of both boards)
-    drawEmotionGauge(this.rendP1, this.p1Emotion, "left", "YOU");
-    drawEmotionGauge(this.rendP2, this.p2Emotion, "right", "CPU");
+    drawEmotionGauge(this.rendP1, this.p1Emotion, "left", "♥");
+    drawEmotionGauge(this.rendP2, this.p2Emotion, "right", "♥");
+    drawSkillBar(this.rendP1, this.p1Skill, SKILL.MAX, "left", this.p1Char.skill.name);
+    drawSkillBar(this.rendP2, this.p2Skill, SKILL.MAX, "right", this.p2Char.skill.name);
     drawSyncTimer(this.rendP1, this.timeLeft);
   }
 

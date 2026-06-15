@@ -69,6 +69,56 @@ export function drawEmotionGauge(rend, value, side, label) {
   ctx.restore();
 }
 
+// 打開スキルのチャージバー。感情ゲージの内側に寄り添う細い縦バー(下から満ちる)。
+// 満タンで点滅し「打開できる」ことを示す(発動は自動)。色は心の青系でゲージ(桃)と
+// 役割を分ける。label はスキル名(満タン時に短く表示)。
+export function drawSkillBar(rend, value, max, side, label) {
+  const ctx = rend.ctx;
+  const frac = Math.max(0, Math.min(1, value / max));
+  const ready = frac >= 1;
+  const area = rend.area || { x: 0, w: rend.W };
+
+  const emoW = Math.max(12, Math.round(rend.cell * 0.5)); // 感情ゲージ幅(同式)
+  const skillW = Math.max(5, Math.round(rend.cell * 0.2));
+  const pad = 12;
+  const top = rend.originY;
+  const h = rend.boardH;
+  let emoX;
+  if (side === "left") emoX = Math.max(area.x + 4, rend.originX - pad - emoW);
+  else emoX = Math.min(area.x + area.w - emoW - 4, rend.originX + rend.boardW + pad);
+  const x = side === "left" ? emoX + emoW + 2 : emoX - skillW - 2;
+
+  ctx.save();
+  ctx.scale(rend.dpr, rend.dpr);
+
+  ctx.fillStyle = "rgba(8,16,36,0.72)";
+  rend.roundRect(ctx, x, top, skillW, h, 4);
+  ctx.fill();
+
+  const fillH = Math.round(h * frac);
+  if (fillH > 1) {
+    const fy = top + h - fillH;
+    const blink = ready && (rend.engine.frame >> 3) % 2 === 0;
+    ctx.save();
+    ctx.shadowColor = "#5fd0ff";
+    ctx.shadowBlur = ready ? (blink ? 16 : 6) : 4;
+    ctx.fillStyle = ready ? (blink ? "#ffffff" : "#7fe0ff") : "rgba(110,200,255,0.85)";
+    rend.roundRect(ctx, x + 1, fy, skillW - 2, fillH - 1, 3);
+    ctx.fill();
+    ctx.restore();
+  }
+
+  if (ready) {
+    ctx.fillStyle = "#bdefff";
+    ctx.font = "bold 10px ui-monospace, Menlo, monospace";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(label || "SKILL", x + skillW / 2, top + h + 18);
+  }
+
+  ctx.restore();
+}
+
 // 残り時間を画面上部中央に MM:SS で表示(1戦に1つ、両盤面で共有)。
 export function drawSyncTimer(rend, timeLeftFrames) {
   const ctx = rend.ctx;
