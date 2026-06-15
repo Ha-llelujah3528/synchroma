@@ -8,9 +8,7 @@
 // 不発(対象なし)の時 false を返す。false の間チャージは満タンのまま保持され、
 // 条件が整い次第その場で発動する(例: 貫くお邪魔がまだ盤面に無い)。
 
-import { GRID_W } from "../core/constants.js";
 import { GState } from "../core/types.js";
-import { queueGarbage } from "../core/garbage.js";
 
 // 透の原型「貫き」── 自盤面の一番下のお邪魔(ためらいの壁)を1スラブだけ貫いて
 // 消す。壁が消えると上に積もったパネルが落ちて掘り起こされる ── 埋もれを打開する
@@ -28,19 +26,23 @@ function pierce(ctx) {
   return true;
 }
 
-// 莉央の原型「きらめき」── 相手盤面に きらめきのお邪魔を一段送る攻めの心の癖。
-function glitter(ctx) {
-  queueGarbage(ctx.opp, GRID_W, 2);
+// 莉央の原型「きらめき」── 降りかかる予告お邪魔(ためらい)を、きらめきで払いのける。
+// 自盤面の incoming(まだ降っていない予告)を消し、少しの間せり上がりを止める ──
+// 莉央側の"打開"。相手には何も送らない(スキルでお邪魔を降らせない方針)。
+function dazzle(ctx) {
+  ctx.self.incoming.length = 0; // 予告おじゃまを払う
+  ctx.self.board.riseStopTimer = Math.max(ctx.self.board.riseStopTimer, 90); // 一息つく
   return true;
 }
 
-export const SKILL_EFFECTS = { pierce, glitter };
+export const SKILL_EFFECTS = { pierce, dazzle };
 
 // 暫定のキャラ。今は YOU / CPU の見た目だが、スキルは既に別物(効果がキャラ別で
-// 変わることの実証)。レイヤー2で透・莉央として心象風景・物語まで肉付けする。
+// 変わることの実証)。どちらも"自分の打開"で、お邪魔を相手に降らせない。攻めは
+// 通常の連鎖が担当する。レイヤー2で透・莉央として心象風景・物語まで肉付けする。
 export const CHARACTERS = {
   toru: { id: "toru", name: "YOU", skill: { name: "貫き", effect: "pierce" } },
-  rio: { id: "rio", name: "CPU", skill: { name: "きらめき", effect: "glitter" } },
+  rio: { id: "rio", name: "CPU", skill: { name: "きらめき", effect: "dazzle" } },
 };
 
 export function activateSkill(character, ctx) {
