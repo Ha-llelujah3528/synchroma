@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>シンクローマ — SYNCHROMA</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;700;900&family=Shippori+Mincho:wght@700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+</head>
+<body>
+  <main class="title-screen" id="titleScreen">
+    <!-- 夕暮れ背景 -->
+    <div class="sky"></div>
+    <div class="sun-glow"></div>
+    <canvas class="petals" id="petals" aria-hidden="true"></canvas>
+
+    <!-- キャラ仮立ち絵 -->
+    <div class="character">
+      <img src="assets/img/char-hikari.svg" alt="七海ひかり" class="character__img" />
+      <span class="character__badge">仮ビジュアル</span>
+    </div>
+
+    <!-- ロゴ -->
+    <div class="logo-wrap">
+      <h1 class="logo">
+        <span class="logo__jp">シンクローマ</span>
+        <span class="logo__en">
+          <span style="--i:0">S</span><span style="--i:1">Y</span><span style="--i:2">N</span><span style="--i:3">C</span><span style="--i:4">H</span><span style="--i:5">R</span><span style="--i:6">O</span><span style="--i:7">M</span><span style="--i:8">A</span>
+        </span>
+      </h1>
+      <p class="tagline">色がシンクロする、放課後。</p>
+    </div>
+
+    <!-- メニュー -->
+    <nav class="menu" id="menu">
+      <button class="btn btn--primary" data-action="start">
+        <span class="btn__label">はじめる</span>
+        <span class="btn__sub">START</span>
+      </button>
+      <button class="btn" data-action="continue">つづきから</button>
+      <button class="btn" data-action="settings">設定</button>
+    </nav>
+
+    <footer class="credit">© 彩明学園 シンクロ部 — プロトタイプ</footer>
+
+    <!-- クロマワイプ遷移オーバーレイ -->
+    <div class="chroma-wipe" id="chromaWipe" aria-hidden="true">
+      <span></span><span></span><span></span>
+    </div>
+  </main>
+
+  <script src="assets/js/title.js"></script>
+</body>
+</html>

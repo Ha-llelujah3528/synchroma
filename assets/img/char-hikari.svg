@@ -1,0 +1,78 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 520 760" width="520" height="760" role="img" aria-label="七海ひかり 仮立ち絵">
+  <defs>
+    <linearGradient id="hair" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f5c97a"/>
+      <stop offset="0.55" stop-color="#e0a85a"/>
+      <stop offset="1" stop-color="#c98842"/>
+    </linearGradient>
+    <linearGradient id="hairTip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ff8fb4"/>
+      <stop offset="1" stop-color="#ff5d8f"/>
+    </linearGradient>
+    <linearGradient id="skin" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff1e6"/>
+      <stop offset="1" stop-color="#ffe0cf"/>
+    </linearGradient>
+    <linearGradient id="cardi" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fff6ee"/>
+      <stop offset="1" stop-color="#ffe3ec"/>
+    </linearGradient>
+    <radialGradient id="eyeL" cx="0.5" cy="0.35" r="0.75">
+      <stop offset="0" stop-color="#ff9ec0"/>
+      <stop offset="0.5" stop-color="#ff5d8f"/>
+      <stop offset="1" stop-color="#9c2f56"/>
+    </radialGradient>
+    <radialGradient id="blush" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#ff8fae" stop-opacity="0.8"/>
+      <stop offset="1" stop-color="#ff8fae" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- back hair -->
+  <path d="M150 250 C120 360 110 560 160 720 L360 720 C410 560 400 360 370 250 C360 180 300 120 260 120 C220 120 160 180 150 250 Z" fill="url(#hair)"/>
+  <!-- hair tips magenta mesh -->
+  <path d="M160 600 C150 660 158 700 170 720 L210 720 C200 660 196 620 196 600 Z" fill="url(#hairTip)" opacity="0.9"/>
+  <path d="M324 600 C330 660 326 700 320 720 L360 720 C356 660 352 620 352 600 Z" fill="url(#hairTip)" opacity="0.9"/>
+
+  <!-- neck & shoulders / cardigan -->
+  <path d="M205 430 L315 430 L315 480 C390 500 420 580 420 720 L100 720 C100 580 130 500 205 480 Z" fill="url(#cardi)" stroke="#e9b7c6" stroke-width="3"/>
+  <path d="M225 458 L260 540 L295 458 L315 478 L260 600 L205 478 Z" fill="#ffd1de"/>
+  <!-- neck -->
+  <path d="M232 405 L288 405 L288 460 L260 478 L232 460 Z" fill="url(#skin)"/>
+
+  <!-- face -->
+  <path d="M185 245 C185 160 215 118 260 118 C305 118 335 160 335 245 C335 330 305 392 260 392 C215 392 185 330 185 245 Z" fill="url(#skin)"/>
+
+  <!-- front hair / bangs -->
+  <path d="M175 250 C168 170 205 110 260 108 C315 110 352 170 345 250 C338 215 320 188 300 196 C306 168 292 150 274 148 C282 170 270 188 258 188 C252 168 236 158 224 168 C236 184 230 200 218 200 C214 184 196 188 190 210 C184 226 180 240 175 250 Z" fill="url(#hair)"/>
+
+  <!-- blush -->
+  <ellipse cx="212" cy="300" rx="26" ry="16" fill="url(#blush)"/>
+  <ellipse cx="308" cy="300" rx="26" ry="16" fill="url(#blush)"/>
+
+  <!-- eyes -->
+  <g>
+    <path d="M196 270 C206 252 236 250 246 268 C238 296 206 298 196 270 Z" fill="#fff"/>
+    <ellipse cx="222" cy="276" rx="17" ry="21" fill="url(#eyeL)"/>
+    <circle cx="222" cy="278" r="8" fill="#3a1326"/>
+    <circle cx="217" cy="270" r="5" fill="#fff"/>
+    <path d="M222 264 l2 4 4 1 -4 1 -2 4 -2 -4 -4 -1 4 -1 Z" fill="#fff"/>
+    <path d="M194 262 C208 250 240 248 250 262" fill="none" stroke="#5a2238" stroke-width="5" stroke-linecap="round"/>
+  </g>
+  <g>
+    <path d="M274 268 C284 250 314 252 324 270 C314 298 282 296 274 268 Z" fill="#fff"/>
+    <ellipse cx="298" cy="276" rx="17" ry="21" fill="url(#eyeL)"/>
+    <circle cx="298" cy="278" r="8" fill="#3a1326"/>
+    <circle cx="293" cy="270" r="5" fill="#fff"/>
+    <path d="M298 264 l2 4 4 1 -4 1 -2 4 -2 -4 -4 -1 4 -1 Z" fill="#fff"/>
+    <path d="M270 262 C280 248 312 250 326 262" fill="none" stroke="#5a2238" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <!-- nose & mouth -->
+  <path d="M258 312 l6 8 -8 0 Z" fill="#f3b89c"/>
+  <path d="M238 338 C252 352 272 352 286 338 C272 360 252 360 238 338 Z" fill="#c14a5e"/>
+  <path d="M244 344 C256 350 268 350 280 344" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" opacity="0.7"/>
+
+  <!-- piercing -->
+  <circle cx="186" cy="320" r="4" fill="#ffd94a"/>
+</svg>
